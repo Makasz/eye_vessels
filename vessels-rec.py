@@ -51,8 +51,6 @@ def prepare(image):
             min = x
         if cv2.contourArea(cnt) <= 800:
             cv2.drawContours(blood_vessels, contours, i, 0, cv2.FILLED)
-    print(max_i, max, min_i, min)
-    print(cv2.contourArea(contours[max_i]), cv2.contourArea(contours[min_i]))
     cv2.drawContours(blood_vessels, contours, min_i, 0, cv2.FILLED)
     cv2.drawContours(blood_vessels, contours, max_i, 0, cv2.FILLED)
     # cv2.imshow('test', n_fin)
@@ -61,7 +59,8 @@ def prepare(image):
 
 def main():
     eye_image = cv2.imread('original.jpg')
-    expected_result = cv2.imread('expected_result.tif')
+    expected_result = cv2.cvtColor(cv2.imread('expected_result.tif'), cv2.COLOR_BGR2GRAY)
+
     bloodvessel = prepare(eye_image)
 
     # cv2.namedWindow('original',cv2.WINDOW_NORMAL)
@@ -69,13 +68,15 @@ def main():
     # cv2.namedWindow('expected', cv2.WINDOW_NORMAL)
 
     cv2.resizeWindow('original', 600, 600)
-    #cv2.resizeWindow('result', 1200, 1200)
+    cv2.resizeWindow('result', 1200, 1200)
     cv2.resizeWindow('expected', 600, 600)
 
     # cv2.imshow('original', eye_image)
     # cv2.imshow('result', bloodvessel)
     # cv2.imshow('expected', expected_result)
+    print(msqer(bloodvessel, expected_result))
     cv2.imwrite('result.png', bloodvessel)
+    cv2.waitKey(0)
     # cv2.waitKey(0)
 
 
