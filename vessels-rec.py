@@ -31,16 +31,30 @@ def prepare(image):
     edges = cv2.Canny(n_fin, 10, 20)
 
     x1, xcontours, xhierarchy = cv2.findContours(edges.copy(), cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
-    for cnt in xcontours:
+    for i, cnt in enumerate(xcontours):
         if 3000 >= cv2.contourArea(cnt) >= 100:
             cv2.drawContours(xmask, [cnt], -1, 0, -1)
     finimage = cv2.bitwise_and(fundus_eroded, fundus_eroded, mask=xmask)
     blood_vessels = cv2.bitwise_not(finimage)
     (im2, contours, hierarchy) = cv2.findContours(blood_vessels.copy(),
                                                   cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+    height, width = len(blood_vessels), len(blood_vessels[0])
+    max, min = 0, 100000
+    max_i, min_i = 0,0
     for i, cnt in enumerate(contours):
+        x, _, _, _ = cv2.boundingRect(cnt)
+        if x > max and cv2.contourArea(cnt) > 22000:
+            max_i = i
+            max = x
+        if x < min and cv2.contourArea(cnt) > 8000:
+            min_i = i
+            min = x
         if cv2.contourArea(cnt) <= 800:
             cv2.drawContours(blood_vessels, contours, i, 0, cv2.FILLED)
+    print(max_i, max, min_i, min)
+    print(cv2.contourArea(contours[max_i]), cv2.contourArea(contours[min_i]))
+    cv2.drawContours(blood_vessels, contours, min_i, 0, cv2.FILLED)
+    cv2.drawContours(blood_vessels, contours, max_i, 0, cv2.FILLED)
     # cv2.imshow('test', n_fin)
     return blood_vessels
 
